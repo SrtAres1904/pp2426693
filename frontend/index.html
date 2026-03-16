@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Research Highlight Generator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<header>
+  <div class="logo">📄</div>
+  <div>
+    <h1>Research Highlight Generator</h1>
+    <p>Extract key insights from any research paper instantly using AI</p>
+  </div>
+</header>
+
+<main>
+
+  <div class="card">
+    <div id="drop-zone">
+      <div class="upload-icon">☁️</div>
+      <h2>Drop your paper here or click to browse</h2>
+      <p>Supports PDF and plain text files</p>
+      <span class="badge">PDF &nbsp;·&nbsp; TXT &nbsp;·&nbsp; up to 20 MB</span>
+    </div>
+    <input type="file" id="file-input" accept=".pdf,.txt" />
+
+    <div id="selected-file">
+      📎 <span id="selected-name"></span>
+    </div>
+
+    <div class="divider">or paste your paper text below</div>
+
+    <textarea
+      id="paper-text"
+      placeholder="Paste the full text of your research paper here…"
+    ></textarea>
+
+    <div id="error-banner">
+      ⚠️ <span id="error-msg"></span>
+    </div>
+
+    <button id="analyse-btn" class="btn btn-primary">
+      🔍 &nbsp; Generate Research Highlights
+    </button>
+  </div>
+
+  <div class="card" id="loader">
+    <div class="spinner"></div>
+    <p class="step-msg" id="step-msg">Processing your paper…</p>
+    <p>This may take 10–30 seconds depending on paper length.</p>
+  </div>
+
+  <div class="card" id="results">
+
+    <div class="results-header">
+      <div>
+        <h2>Research Highlights</h2>
+        <p class="paper-title" id="paper-title-display"></p>
+      </div>
+      <div class="results-actions">
+        <button id="print-btn" class="btn btn-secondary">🖨️ Print</button>
+        <button id="copy-btn" class="btn btn-secondary">📋 Copy JSON</button>
+        <button id="reset-btn" class="btn btn-secondary">↩ Analyse Another</button>
+      </div>
+    </div>
+
+    <div class="stats-bar">
+      <span>📄 File: <strong id="stat-filename">—</strong></span>
+      <span>🔤 Characters: <strong id="stat-chars">—</strong></span>
+    </div>
+
+    <div class="highlights-grid">
+
+      <div class="hl-card objective">
+        <h3><span class="icon">🎯</span> Research Objective</h3>
+        <p id="hl-objective"></p>
+      </div>
+
+      <div class="hl-card methodology">
+        <h3><span class="icon">🔬</span> Methodology</h3>
+        <p id="hl-methodology"></p>
+      </div>
+
+      <div class="hl-card findings">
+        <h3><span class="icon">💡</span> Key Findings</h3>
+        <ul id="hl-findings"></ul>
+      </div>
+
+      <div class="hl-card conclusions">
+        <h3><span class="icon">📌</span> Conclusions</h3>
+        <p id="hl-conclusions"></p>
+      </div>
+
+      <div class="hl-card contributions">
+        <h3><span class="icon">🚀</span> Novel Contributions</h3>
+        <ul id="hl-contributions"></ul>
+      </div>
+
+      <div class="hl-card limitations">
+        <h3><span class="icon">⚠️</span> Limitations</h3>
+        <ul id="hl-limitations"></ul>
+      </div>
+
+      <div class="hl-card keywords">
+        <h3><span class="icon">🏷️</span> Keywords</h3>
+        <div id="hl-keywords" class="keyword-chips"></div>
+      </div>
+
+      <div class="hl-card summary">
+        <h3><span class="icon">📝</span> Paper Summary</h3>
+        <p id="hl-summary"></p>
+      </div>
+
+    </div>
+  </div>
+
+</main>
+
+<script src="js/app.js"></script>
+</body>
+</html>
