@@ -36,10 +36,14 @@ fileInput.addEventListener("change", () => {
 });
 
 function handleFileSelect(file) {
-  const allowed = ["application/pdf", "text/plain"];
+  const allowed = [
+    "application/pdf",
+    "text/plain",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  ];
   const ext = file.name.split(".").pop().toLowerCase();
-  if (!allowed.includes(file.type) && !["pdf", "txt"].includes(ext)) {
-    showError("Please upload a PDF or TXT file.");
+  if (!allowed.includes(file.type) && !["pdf", "txt", "docx"].includes(ext)) {
+    showError("Please upload a PDF, DOCX or TXT file.");
     return;
   }
   selectedFileObj = file;

@@ -1,15 +1,21 @@
 import json
 import re
 import os
+import logging
+import time
 import anthropic
 from dotenv import load_dotenv
 
 load_dotenv()
 
-# ─────────────────────────────────────────────────────────────
-# PUT YOUR ANTHROPIC API KEY HERE  ↓  (or set it in .env file)
-# ─────────────────────────────────────────────────────────────
-ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "sk-ant-XXXXXXXXXXXXXXXX")  # <-- replace with your key from https://console.anthropic.com/
+logger = logging.getLogger(__name__)
+
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY")
+if not ANTHROPIC_API_KEY:
+    raise RuntimeError("ANTHROPIC_API_KEY environment variable is not set")
+
+# Single client instance reused across all requests
+_client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
 SYSTEM_PROMPT = """You are an expert academic research assistant specialising in analysing scientific papers.
 
@@ -51,14 +57,16 @@ Rules:
 def generate_highlights(paper_text: str) -> dict:
     """Call Claude to generate structured research highlights from paper text."""
 
-    # Truncate extremely long papers to stay within context limits
     MAX_CHARS = 80_000
-    if len(paper_text) > MAX_CHARS:
+    truncated = len(paper_text) > MAX_CHARS
+    if truncated:
         paper_text = paper_text[:MAX_CHARS] + "\n\n[Note: paper was truncated for processing]"
+        logger.warning("Paper text truncated to %d characters", MAX_CHARS)
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    logger.info("Sending %d characters to Claude", len(paper_text))
+    start = time.monotonic()
 
-    message = client.messages.create(
+    message = _client.messages.create(
         model="claude-sonnet-4-6",
         max_tokens=2048,
         system=SYSTEM_PROMPT,
@@ -73,13 +81,23 @@ def generate_highlights(paper_text: str) -> dict:
         ],
     )
 
+    elapsed = time.monotonic() - start
+    usage = message.usage
+    logger.info(
+        "Claude responded in %.2fs | input_tokens=%d output_tokens=%d",
+        elapsed,
+        usage.input_tokens,
+        usage.output_tokens,
+    )
+
     raw = message.content[0].text.strip()
 
-    # Parse JSON — fall back to regex extraction if the model adds any wrapper text
     try:
         return json.loads(raw)
     except json.JSONDecodeError:
+        logger.warning("Direct JSON parse failed, attempting regex extraction")
         match = re.search(r"\{.*\}", raw, re.DOTALL)
         if match:
             return json.loads(match.group())
+        logger.error("Could not parse LLM response as JSON. Raw response:\n%s", raw)
         raise ValueError(f"Could not parse LLM response as JSON. Raw response:\n{raw}")
