@@ -91,6 +91,9 @@ def generate_highlights(paper_text: str) -> dict:
     )
 
     raw = message.content[0].text.strip()
+    # Strip markdown code fences if present (e.g. ```json ... ```)
+    raw = re.sub(r"^```[a-z]*\s*", "", raw)
+    raw = re.sub(r"\s*```$", "", raw)
 
     try:
         return json.loads(raw)
