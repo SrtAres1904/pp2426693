@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sign In — Research Highlight Generator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <div class="auth-brand">
+    <div class="auth-logo">📄</div>
+    <h1>Research Highlight Generator</h1>
+    <p>Sign in to access your papers and history</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Welcome back</h2>
+
+    <div id="error-banner" class="error-banner" style="display:none;">
+      <span id="error-msg"></span>
+    </div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email"
+               placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required autocomplete="current-password"
+               placeholder="Your password" />
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-btn">Sign In</button>
+    </form>
+
+    <p class="auth-switch">
+      Don't have an account? <a href="/signup">Create one for free</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  // If already logged in, skip to main app
+  fetch("/api/auth/me", { credentials: "include" })
+    .then(r => { if (r.ok) window.location.href = "/"; })
+    .catch(() => {});
+
+  const form       = document.getElementById("login-form");
+  const errorBanner = document.getElementById("error-banner");
+  const errorMsg   = document.getElementById("error-msg");
+  const submitBtn  = document.getElementById("submit-btn");
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBanner.style.display = "none";
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Signing in…";
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+
+    try {
+      const res  = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = "/";
+      } else {
+        errorMsg.textContent = data.error || "Login failed.";
+        errorBanner.style.display = "block";
+      }
+    } catch {
+      errorMsg.textContent = "Connection error. Is the server running?";
+      errorBanner.style.display = "block";
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Sign In";
+    }
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Create Account — Research Highlight Generator</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="auth-body">
+
+<div class="auth-page">
+  <div class="auth-brand">
+    <div class="auth-logo">📄</div>
+    <h1>Research Highlight Generator</h1>
+    <p>Create a free account to get started</p>
+  </div>
+
+  <div class="auth-card">
+    <h2>Create your account</h2>
+
+    <div id="error-banner" class="error-banner" style="display:none;">
+      <span id="error-msg"></span>
+    </div>
+
+    <form id="signup-form" novalidate>
+      <div class="form-group">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required autocomplete="email"
+               placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label for="password">Password <span class="label-hint">(min. 6 characters)</span></label>
+        <input type="password" id="password" name="password" required autocomplete="new-password"
+               placeholder="Choose a password" />
+      </div>
+      <div class="form-group">
+        <label for="confirm">Confirm password</label>
+        <input type="password" id="confirm" name="confirm" required autocomplete="new-password"
+               placeholder="Repeat your password" />
+      </div>
+      <button type="submit" class="btn btn-primary" id="submit-btn">Create Account</button>
+    </form>
+
+    <p class="auth-switch">
+      Already have an account? <a href="/login">Sign in</a>
+    </p>
+  </div>
+</div>
+
+<script>
+  // If already logged in, skip to main app
+  fetch("/api/auth/me", { credentials: "include" })
+    .then(r => { if (r.ok) window.location.href = "/"; })
+    .catch(() => {});
+
+  const form        = document.getElementById("signup-form");
+  const errorBanner = document.getElementById("error-banner");
+  const errorMsg    = document.getElementById("error-msg");
+  const submitBtn   = document.getElementById("submit-btn");
+
+  function showError(msg) {
+    errorMsg.textContent = msg;
+    errorBanner.style.display = "block";
+  }
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    errorBanner.style.display = "none";
+
+    const email    = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value;
+    const confirm  = document.getElementById("confirm").value;
+
+    if (password !== confirm) {
+      showError("Passwords do not match.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Creating account…";
+
+    try {
+      const res  = await fetch("/api/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await res.json();
+      if (res.ok) {
+        window.location.href = "/";
+      } else {
+        showError(data.error || "Registration failed.");
+      }
+    } catch {
+      showError("Connection error. Is the server running?");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Create Account";
+    }
+  });
+</script>
+</body>
+</html>
