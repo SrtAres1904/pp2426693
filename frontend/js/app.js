@@ -13,7 +13,6 @@ const errorBanner  = document.getElementById("error-banner");
 const errorMsg     = document.getElementById("error-msg");
 const results      = document.getElementById("results");
 const resetBtn     = document.getElementById("reset-btn");
-const printBtn     = document.getElementById("print-btn");
 const copyBtn      = document.getElementById("copy-btn");
 const historyList  = document.getElementById("history-list");
 const userEmailEl  = document.getElementById("user-email");
@@ -250,7 +249,6 @@ resetBtn.addEventListener("click", () => {
   window.scrollTo({ top: 0, behavior: "smooth" });
 });
 
-printBtn.addEventListener("click", () => window.print());
 
 copyBtn.addEventListener("click", async () => {
   const obj = {
